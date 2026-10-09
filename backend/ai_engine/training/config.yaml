@@ -1,0 +1,50 @@
+# CardioVisionAI training configuration.
+# Loaded automatically by `train.py` (use --config path/to/config.yaml to override).
+# Every key here is optional - unset keys fall back to TrainingConfig defaults.
+
+# --- Training hyperparameters ---
+epochs: 60
+batch_size: 32
+learning_rate: 0.001
+optimizer: adam                # adam | adamw | sgd
+image_size: 224
+seed: 42
+weights: imagenet              # imagenet | None (from scratch)
+
+# --- Data splits (sum to 1.0; stratified) ---
+val_split: 0.15
+test_split: 0.15
+
+# --- Augmentation (applied only to training data) ---
+augmentation:
+  enabled: true
+  horizontal_flip: true
+  vertical_flip: true
+  rotation_90: true
+  brightness_delta: 0.1
+  contrast_delta: 0.2
+
+# --- Early stopping ---
+early_stopping:
+  patience: 10
+  restore_best_weights: true
+
+# --- Learning-rate reduction on plateau ---
+reduce_lr:
+  patience: 4
+  factor: 0.2
+  min_lr: 1e-6
+
+# --- Regularization ---
+dropout: 0.3
+label_smoothing: 0.1
+
+# --- Transfer learning ---
+# 0 = train the classification head only (backbone frozen).
+# >0 = additionally unfreeze the last N backbone layers (fine-tuning).
+fine_tuning_layers: 0
+
+# --- Misc ---
+class_weights: true            # balance classes during training
+use_clinical: false            # train the (non-deployable) clinical fusion model
+preprocessed: false            # true when training on dataset/processed output

@@ -1,0 +1,11 @@
+# Training dependencies for the CardioVisionAI AI model.
+# Install with:  pip install -r requirements-training.txt
+tensorflow>=2.15.0
+numpy>=1.26.0
+opencv-python>=4.9.0
+scikit-image>=0.22.0
+pandas>=2.0.0
+scikit-learn>=1.3.0
+matplotlib>=3.7.0
+Pillow>=10.0.0
+PyYAML>=6.0
