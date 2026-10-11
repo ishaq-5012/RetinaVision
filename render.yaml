@@ -1,0 +1,34 @@
+services:
+  # Frontend: React + Vite static site
+  - type: static_site
+    name: retinavision-frontend
+    env: static
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_SUPABASE_URL
+        scope: build
+      - key: VITE_SUPABASE_ANON_KEY
+        scope: build
+      - key: VITE_API_URL
+        scope: build
+        value: https://retinavision-backend.onrender.com
+
+  # Backend: FastAPI Python service
+  - type: web
+    name: retinavision-backend
+    env: python
+    plan: standard
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: uvicorn backend.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: AI_API_PORT
+        value: "8000"
+      - key: GROQ_API_KEY
+        scope: build
+      - key: GROQ_VISION_MODEL
+        value: qwen/qwen3.8-27b
+    rootDir: .
+    routes:
+      - path: /api/*
+        destination: https://retinavision-backend.onrender.com
