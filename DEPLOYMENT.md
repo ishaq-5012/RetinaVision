@@ -47,3 +47,14 @@ Supabase → **Authentication → URL Configuration**:
   Blueprint uses the native Python runtime instead.
 - TensorFlow is not installed in production (only needed for training, see
   `backend/requirements-training.txt`).
+
+## Keeping Supabase awake
+
+`.github/workflows/supabase-keepalive.yml` runs a small database query every
+2 days so the free Supabase project never auto-pauses. It needs two repository
+secrets in GitHub (**Settings → Secrets and variables → Actions**):
+`SUPABASE_URL` and `SUPABASE_ANON_KEY`. If a run fails, GitHub emails you:
+that means the project is paused and needs **Restore project**.
+
+GitHub turns off scheduled workflows in repositories with no commits for 60
+days; re-enable it from the **Actions** tab if that happens.

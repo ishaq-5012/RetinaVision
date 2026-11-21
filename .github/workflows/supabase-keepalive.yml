@@ -1,0 +1,38 @@
+# Keeps the free Supabase project from auto-pausing.
+# Supabase pauses free projects after ~7 days with no database activity;
+# this runs a tiny read query every 2 days so the project always looks active.
+#
+# Needs two repository secrets (Settings -> Secrets and variables -> Actions):
+#   SUPABASE_URL       e.g. https://<project-ref>.supabase.co
+#   SUPABASE_ANON_KEY  the anon / publishable key (same as VITE_SUPABASE_ANON_KEY)
+name: Supabase keep-alive
+
+on:
+  schedule:
+    - cron: "0 6 */2 * *" # 06:00 UTC every 2 days
+  workflow_dispatch: # allows a manual "Run workflow" button
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Query Supabase
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: |
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_ANON_KEY" ]; then
+            echo "::error::SUPABASE_URL / SUPABASE_ANON_KEY secrets are not set"
+            exit 1
+          fi
+          # A real database query (not just a health check) so it counts as activity.
+          status=$(curl -s -o /dev/null -w "%{http_code}" --retry 3 --retry-delay 10 \
+            "$SUPABASE_URL/rest/v1/profiles?select=id&limit=1" \
+            -H "apikey: $SUPABASE_ANON_KEY" \
+            -H "Authorization: Bearer $SUPABASE_ANON_KEY")
+          echo "Supabase responded with HTTP $status"
+          if [ "$status" != "200" ]; then
+            echo "::error::Supabase did not respond normally (HTTP $status). The project may be paused: restore it in the Supabase dashboard."
+            exit 1
+          fi
