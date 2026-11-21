@@ -1,34 +1,43 @@
+# Render Blueprint: creates the API (FastAPI) and the website (React static site).
+# Render dashboard -> New -> Blueprint -> select this repository.
 services:
-  # Frontend: React + Vite static site
-  - type: static_site
-    name: retinavision-frontend
-    env: static
-    buildCommand: npm install && npm run build
-    staticPublishPath: dist
-    envVars:
-      - key: VITE_SUPABASE_URL
-        scope: build
-      - key: VITE_SUPABASE_ANON_KEY
-        scope: build
-      - key: VITE_API_URL
-        scope: build
-        value: https://retinavision-backend.onrender.com
-
-  # Backend: FastAPI Python service
+  # ---------- Backend: retinal analysis API ----------
   - type: web
-    name: retinavision-backend
-    env: python
-    plan: standard
-    buildCommand: pip install -r backend/requirements.txt
-    startCommand: uvicorn backend.main:app --host 0.0.0.0 --port $PORT
+    name: cardiovision-api
+    runtime: python
+    rootDir: backend
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
     envVars:
-      - key: AI_API_PORT
-        value: "8000"
+      - key: PYTHON_VERSION
+        value: 3.11.9
       - key: GROQ_API_KEY
-        scope: build
+        sync: false # entered in the dashboard, never committed
       - key: GROQ_VISION_MODEL
         value: qwen/qwen3.8-27b
-    rootDir: .
+
+  # ---------- Frontend: React website ----------
+  - type: web
+    name: cardiovision
+    runtime: static
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist
     routes:
-      - path: /api/*
-        destination: https://retinavision-backend.onrender.com
+      - type: rewrite # single-page app: every path serves index.html
+        source: /*
+        destination: /index.html
+    headers:
+      - path: /assets/*
+        name: Cache-Control
+        value: public, max-age=31536000, immutable
+    envVars:
+      - key: NODE_VERSION
+        value: 20.18.0
+      - key: VITE_SUPABASE_URL
+        sync: false
+      - key: VITE_SUPABASE_ANON_KEY
+        sync: false
+      - key: VITE_API_URL
+        sync: false # https://cardiovision-api.onrender.com (your API URL)

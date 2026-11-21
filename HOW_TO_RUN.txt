@@ -1,0 +1,24 @@
+CardioVisionAI - How to run on a Windows laptop
+================================================
+
+1) INSTALL (only once)
+   - Python 3.11  https://www.python.org/downloads/
+       IMPORTANT: tick "Add Python to PATH" on the first installer screen.
+   - Node.js 20 LTS  https://nodejs.org/
+
+2) SETUP (only once)
+   - Unzip the project folder.
+   - Double-click  setup.bat  and wait until it says "Setup complete" (5-10 minutes).
+
+3) RUN (every time)
+   - Double-click  start.bat
+   - Two black windows open (backend + website) and the browser opens
+     http://localhost:5173  automatically.
+   - Keep the two black windows open while using the app.
+   - To stop: close the two black windows.
+
+Notes
+   - An internet connection is required (database and AI interpretation are online).
+   - The first page load can take ~30 seconds; after that it is fast.
+   - If the browser shows "This site can't be reached", wait a few seconds and refresh.
+   - If a scan says "Failed to fetch", the backend window was closed: run start.bat again.
